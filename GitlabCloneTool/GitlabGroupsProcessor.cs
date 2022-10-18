@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -32,16 +33,23 @@ namespace GitlabCloneTool
 
         public async Task CreateAndProcessGroups()
         {
+            Console.WriteLine("Getting Group List");
             var response = await client.GetAsync(GITLAB_GROUPS_URL);
             GroupsJson = await response.Content.ReadAsStringAsync();
+            Console.WriteLine("Parsing Group List");
             var rawGroups = JsonConvert.DeserializeObject<GitlabGroup[]>(GroupsJson);
             Utilities.WriteAllText(config.CloneDirectory, FILE_GROUPS_RAW, GroupsJson);
+            Console.WriteLine("Processing Group List");
             CreateGroupsInfo(rawGroups);
             WriteGroupsInfo();
+            Console.WriteLine("Getting Group Details and Project Lists");
             await GetGroupDetails();
             WriteGroupsInfo();
+            Console.WriteLine("Creating Group Folders");
             CreateGroupFolders();
+            Console.WriteLine("Creating Project Folders");
             CreateProjectFolders();
+            Console.WriteLine("Phase 1 - Finished");
         }
 
         public async Task CloneProjects()
