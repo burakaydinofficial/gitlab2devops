@@ -12,7 +12,7 @@ namespace GitlabCloneTool
 {
     internal class GitlabGroupsProcessor
     {
-        private const string GITLAB_GROUPS_URL = "https://gitlab.com/api/v4/groups/";
+        private const string GITLAB_GROUPS_URL = "https://gitlab.com/api/v4/groups?per_page=500";
         private const string GITLAB_GROUP_URL_FORMAT = "https://gitlab.com/api/v4/groups/{0}";
         private const string FILE_GROUPS_RAW = "groups_raw.json";
         private const string FILE_GROUPS = "groups.json";
