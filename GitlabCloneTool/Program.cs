@@ -17,28 +17,50 @@ namespace GitlabCloneTool
             MainConfig config = TryParseConfig();
             if (config == null)
             {
-                Console.WriteLine("Please Edit " + CONFIG_PATH + " (" + Path.Combine(Directory.GetCurrentDirectory(), CONFIG_PATH) +")");
+                Console.WriteLine("Please Edit " + CONFIG_PATH + " (" + Path.Combine(Directory.GetCurrentDirectory(), CONFIG_PATH) + ")");
                 Console.ReadLine();
                 return;
             }
 
-            //int mode;
-            //if (!ReadUserSelection(out mode))
-            //{
-            //    Console.WriteLine("Invalid Selection");
-            //    Console.ReadLine();
-            //    return;
-            //}
+            int mode;
+            if (!ReadUserSelection(out mode))
+            {
+                Console.WriteLine("Invalid Selection");
+                Console.ReadLine();
+                return;
+            }
 
-            var groupProcessor = new GitlabGroupsProcessor(config);
-            await groupProcessor.DownloadAndProcess();
+            switch (mode)
+            {
+                case 0:
+                    {
+                        var groupProcessor = new GitlabGroupsProcessor(config);
+                        await groupProcessor.CreateAndProcessGroups();
+                        await groupProcessor.CloneProjects();
+                        break;
+                    }
+                case 1:
+                    {
+                        var groupProcessor = new GitlabGroupsProcessor(config);
+                        await groupProcessor.CreateAndProcessGroups();
+                        break;
+                    }
+                case 2:
+                    {
+                        var groupProcessor = new GitlabGroupsProcessor(config);
+                        await groupProcessor.CloneProjects();
+                        break;
+                    }
 
+            }
+
+            Console.WriteLine("Finished, Pressed Enter to Exit");
             Console.ReadLine();
         }
 
         private static bool ReadUserSelection(out int mode)
         {
-            Console.WriteLine("Download Group List: 1\nDownload Project List: 2\nClone Projects: 3\nCreate Projects On Azure: 4\nCreate Repositories On Azure\nUpload Projects: 5");
+            Console.WriteLine("Do All: 0\nDownload Group List: 1\nClone Projects: 2\nCreate Projects On Azure: 3\nCreate Repositories On Azure\nUpload Projects: 4");
             var input = Console.ReadLine();
             return Int32.TryParse(input, out mode);
         }

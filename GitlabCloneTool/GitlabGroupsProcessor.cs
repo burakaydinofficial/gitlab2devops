@@ -1,5 +1,8 @@
 ﻿using System;
+using System.IO;
+using System.Linq;
 using System.Net.Http;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using GitlabCloneTool.DataModels;
 using GitlabCloneTool.DataModels.Gitlab;
@@ -13,6 +16,7 @@ namespace GitlabCloneTool
         private const string GITLAB_GROUP_URL_FORMAT = "https://gitlab.com/api/v4/groups/{0}";
         private const string FILE_GROUPS_RAW = "groups_raw.json";
         private const string FILE_GROUPS = "groups.json";
+        private const string DIRECTORY_GROUPS = "Groups";
         private readonly MainConfig config;
         private readonly HttpClient client;
 
@@ -26,7 +30,7 @@ namespace GitlabCloneTool
             client.DefaultRequestHeaders.Add("PRIVATE-TOKEN", config.PrivateToken);
         }
 
-        public async Task DownloadAndProcess()
+        public async Task CreateAndProcessGroups()
         {
             var response = await client.GetAsync(GITLAB_GROUPS_URL);
             GroupsJson = await response.Content.ReadAsStringAsync();
@@ -36,6 +40,16 @@ namespace GitlabCloneTool
             WriteGroupsInfo();
             await GetGroupDetails();
             WriteGroupsInfo();
+            CreateGroupFolders();
+            CreateProjectFolders();
+        }
+
+        public async Task CloneProjects()
+        {
+            ReadGroupsInfo();
+            await CloneAllProjects();
+            WriteGroupsInfo();
+            DownloadReport();
         }
 
         private bool CreateGroupsInfo(GitlabGroup[] groups)
@@ -48,6 +62,13 @@ namespace GitlabCloneTool
                 go.Store = new GroupInfo.StoreInfo(go.Input.RawGitlabInfo.full_path);
                 Groups[i] = go;
             }
+            return true;
+        }
+
+        private bool ReadGroupsInfo()
+        {
+            Groups = JsonConvert.DeserializeObject<GroupInfo[]>(
+                File.ReadAllText(Path.Combine(config.CloneDirectory, FILE_GROUPS)));
             return true;
         }
 
@@ -67,9 +88,133 @@ namespace GitlabCloneTool
                 var responseContent = await response.Content.ReadAsStringAsync();
                 var groupDetails = JsonConvert.DeserializeObject<GitlabGroupDetails>(responseContent);
                 group.Input.RawGitlabDetails = groupDetails;
+                foreach (var project in groupDetails.projects)
+                {
+                    if (!group.Store.Repositories.Exists(x => x.Id == project.id))
+                    {
+                        group.Store.Repositories.Add(new GroupInfo.StoreInfo.Repository(project));
+                    }
+                }
             }
 
             return true;
+        }
+
+        private bool CreateGroupFolders()
+        {
+            string baseDir = Path.Combine(config.CloneDirectory, DIRECTORY_GROUPS);
+            for (var i = 0; i < Groups.Length; i++)
+            {
+                var group = Groups[i];
+                string groupDir = Path.Combine(baseDir, group.Store.Root);
+                if (!Directory.Exists(groupDir))
+                    Directory.CreateDirectory(groupDir);
+            }
+
+            return true;
+        }
+
+        private bool CreateProjectFolders()
+        {
+            string baseDir = Path.Combine(config.CloneDirectory, DIRECTORY_GROUPS);
+            for (var i = 0; i < Groups.Length; i++)
+            {
+                var group = Groups[i];
+                string groupDir = Path.Combine(baseDir, group.Store.Root);
+                foreach (var project in @group.Input.RawGitlabDetails.projects)
+                {
+                    var projectDir = Path.Combine(groupDir, project.path);
+                    if (!Directory.Exists(projectDir))
+                        Directory.CreateDirectory(projectDir);
+                }
+            }
+
+            return true;
+        }
+
+        private async Task<bool> CloneAllProjects()
+        {
+            string baseDir = Path.Combine(config.CloneDirectory, DIRECTORY_GROUPS);
+            for (var i = 0; i < Groups.Length; i++)
+            {
+                var group = Groups[i];
+                string groupDir = Path.Combine(baseDir, group.Store.Root);
+                Console.WriteLine("Group " + group.Input.RawGitlabDetails.name);
+                foreach (var project in @group.Input.RawGitlabDetails.projects)
+                {
+                    var projectReference = group.Store.Repositories.Find(x => x.Id == project.id);
+                    Console.WriteLine("Project " + projectReference.Name);
+
+                    if (!projectReference.Clone)
+                    {
+                        Console.WriteLine("Skipping Project. Clone Disabled in group json file");
+                        continue;
+                    }
+
+                    var projectDir = Path.Combine(groupDir, projectReference.LocalPath);
+                    Console.WriteLine("Cloning " + projectReference.CloneUrl);
+                    var cloningResult = await Utilities.Git.CloneProject(projectReference.CloneUrl, projectDir);
+                    if ( cloningResult.HasValue && !cloningResult.Value)
+                    {
+                        Console.WriteLine("Cannot Clone Project");
+                        continue;
+                    }
+                    else if (!cloningResult.HasValue)
+                    {
+                        Console.WriteLine("Skipping Clone");
+                    }
+                    else
+                    {
+                        projectReference.CloneTimestamp = DateTime.Now;
+                    }
+
+                    Console.WriteLine("Fetching " + projectReference.CloneUrl);
+                    if (!await Utilities.Git.FetchProject(projectDir))
+                    {
+                        projectReference.LastFetchTimestamp = DateTime.Now;
+                        projectReference.LastFetchSuccessful = false;
+                        Console.WriteLine("Cannot Fetch Project");
+                        continue;
+                    }
+                    else
+                    {
+                        projectReference.LastFetchTimestamp = DateTime.Now;
+                        projectReference.LastFetchSuccessful = true;
+                        projectReference.LastSuccessfulFetch = DateTime.Now;
+                    }
+                    Console.WriteLine("Fetching LFS for " + projectReference.CloneUrl);
+                    if (!await Utilities.Git.FetchProjectLFS(projectDir))
+                    {
+                        projectReference.LastFetchLFSTimestamp = DateTime.Now;
+                        projectReference.LastFetchLFSSuccessful = false;
+                        Console.WriteLine("Cannot Fetch LFS Project");
+                        continue;
+                    }
+                    else
+                    {
+                        projectReference.LastFetchLFSTimestamp = DateTime.Now;
+                        projectReference.LastFetchLFSSuccessful = true;
+                        projectReference.LastSuccessfulFetchLFSTimestamp = DateTime.Now;
+                    }
+
+                }
+            }
+
+            return true;
+        }
+
+
+        private void DownloadReport()
+        {
+            Console.WriteLine();
+            Console.WriteLine("Download Report");
+            for (var i = 0; i < Groups.Length; i++)
+            {
+                var group = Groups[i];
+                Console.WriteLine(" - " + group.Input.RawGitlabDetails.full_name);
+                var groupProjects = group.Store.Repositories;
+                Console.WriteLine("   Project Count: " + groupProjects.Count + " Fetch Success: " + groupProjects.FindAll(x => x.LastFetchSuccessful && x.LastFetchLFSSuccessful).Count);
+            }
         }
     }
 }
