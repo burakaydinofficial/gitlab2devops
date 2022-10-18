@@ -1,6 +1,6 @@
 ﻿using GitlabCloneTool.DataModels.Gitlab;
 
-namespace GitlabCloneTool
+namespace GitlabCloneTool.DataModels
 {
     internal class GroupInfo
     {
@@ -11,6 +11,7 @@ namespace GitlabCloneTool
         public class InputInfo
         {
             public GitlabGroup RawGitlabInfo;
+            public GitlabGroupDetails RawGitlabDetails;
 
             public InputInfo(GitlabGroup rawGitlabInfo)
             {

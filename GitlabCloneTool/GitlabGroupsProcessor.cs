@@ -1,5 +1,7 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Net.Http;
 using System.Threading.Tasks;
+using GitlabCloneTool.DataModels;
 using GitlabCloneTool.DataModels.Gitlab;
 using Newtonsoft.Json;
 
@@ -33,6 +35,7 @@ namespace GitlabCloneTool
             CreateGroupsInfo(rawGroups);
             WriteGroupsInfo();
             await GetGroupDetails();
+            WriteGroupsInfo();
         }
 
         private bool CreateGroupsInfo(GitlabGroup[] groups)
@@ -62,6 +65,8 @@ namespace GitlabCloneTool
                 var groupUrl = string.Format(GITLAB_GROUP_URL_FORMAT, group.Input.RawGitlabInfo.id);
                 var response = await client.GetAsync(groupUrl);
                 var responseContent = await response.Content.ReadAsStringAsync();
+                var groupDetails = JsonConvert.DeserializeObject<GitlabGroupDetails>(responseContent);
+                group.Input.RawGitlabDetails = groupDetails;
             }
 
             return true;
