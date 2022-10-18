@@ -25,7 +25,7 @@ namespace GitlabCloneTool.DataModels.Gitlab
         public bool? request_access_enabled { get; set; }
         public string full_name { get; set; }
         public string full_path { get; set; }
-        public DateTime created_at { get; set; }
+        public DateTime? created_at { get; set; }
         public int? parent_id { get; set; }
         public object ldap_cn { get; set; }
         public object ldap_access { get; set; }
@@ -39,7 +39,7 @@ namespace GitlabCloneTool.DataModels.Gitlab
         public string older_than { get; set; }
         public string name_regex { get; set; }
         public object name_regex_keep { get; set; }
-        public DateTime next_run_at { get; set; }
+        public DateTime? next_run_at { get; set; }
     }
 
     public class ForkedFromProject
@@ -50,7 +50,7 @@ namespace GitlabCloneTool.DataModels.Gitlab
         public string name_with_namespace { get; set; }
         public string path { get; set; }
         public string path_with_namespace { get; set; }
-        public DateTime created_at { get; set; }
+        public DateTime? created_at { get; set; }
         public string default_branch { get; set; }
         public List<object> tag_list { get; set; }
         public List<object> topics { get; set; }
@@ -61,7 +61,7 @@ namespace GitlabCloneTool.DataModels.Gitlab
         public object avatar_url { get; set; }
         public int? forks_count { get; set; }
         public int? star_count { get; set; }
-        public DateTime last_activity_at { get; set; }
+        public DateTime? last_activity_at { get; set; }
         public Namespace @namespace { get; set; }
     }
 
@@ -97,7 +97,7 @@ namespace GitlabCloneTool.DataModels.Gitlab
         public string name_with_namespace { get; set; }
         public string path { get; set; }
         public string path_with_namespace { get; set; }
-        public DateTime created_at { get; set; }
+        public DateTime? created_at { get; set; }
         public string default_branch { get; set; }
         public List<object> tag_list { get; set; }
         public List<object> topics { get; set; }
@@ -108,7 +108,7 @@ namespace GitlabCloneTool.DataModels.Gitlab
         public object avatar_url { get; set; }
         public int? forks_count { get; set; }
         public int? star_count { get; set; }
-        public DateTime last_activity_at { get; set; }
+        public DateTime? last_activity_at { get; set; }
         public Namespace @namespace { get; set; }
         public string container_registry_image_prefix { get; set; }
         public Links _links { get; set; }
@@ -208,7 +208,7 @@ namespace GitlabCloneTool.DataModels.Gitlab
         public bool? request_access_enabled { get; set; }
         public string full_name { get; set; }
         public string full_path { get; set; }
-        public DateTime created_at { get; set; }
+        public DateTime? created_at { get; set; }
         public int? parent_id { get; set; }
         public object ldap_cn { get; set; }
         public object ldap_access { get; set; }
