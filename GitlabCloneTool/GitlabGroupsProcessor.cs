@@ -160,54 +160,67 @@ namespace GitlabCloneTool
                     }
 
                     var projectDir = Path.Combine(groupDir, projectReference.LocalPath);
-                    Console.WriteLine("Cloning " + projectReference.CloneUrl);
-                    var cloningResult = await Utilities.Git.CloneProject(projectReference.CloneUrl, projectDir);
-                    if ( cloningResult.HasValue && !cloningResult.Value)
-                    {
-                        Console.WriteLine("Cannot Clone Project");
-                        continue;
-                    }
-                    else if (!cloningResult.HasValue)
-                    {
-                        Console.WriteLine("Skipping Clone");
-                    }
-                    else
-                    {
-                        projectReference.CloneTimestamp = DateTime.Now;
-                    }
-
-                    Console.WriteLine("Fetching " + projectReference.CloneUrl);
-                    if (!await Utilities.Git.FetchProject(projectDir))
-                    {
-                        projectReference.LastFetchTimestamp = DateTime.Now;
-                        projectReference.LastFetchSuccessful = false;
-                        Console.WriteLine("Cannot Fetch Project");
-                        continue;
-                    }
-                    else
-                    {
-                        projectReference.LastFetchTimestamp = DateTime.Now;
-                        projectReference.LastFetchSuccessful = true;
-                        projectReference.LastSuccessfulFetch = DateTime.Now;
-                    }
-                    Console.WriteLine("Fetching LFS for " + projectReference.CloneUrl);
-                    if (!await Utilities.Git.FetchProjectLFS(projectDir))
-                    {
-                        projectReference.LastFetchLFSTimestamp = DateTime.Now;
-                        projectReference.LastFetchLFSSuccessful = false;
-                        Console.WriteLine("Cannot Fetch LFS Project");
-                        continue;
-                    }
-                    else
-                    {
-                        projectReference.LastFetchLFSTimestamp = DateTime.Now;
-                        projectReference.LastFetchLFSSuccessful = true;
-                        projectReference.LastSuccessfulFetchLFSTimestamp = DateTime.Now;
-                    }
-
+                    var taskTag = "Task: " + taskIndex + " ||| ";
+                    var task = CloneAndFetchProject(projectReference, projectDir, taskTag);
+                    tasks.Add(task);
+                    taskIndex++;
+                }
+                foreach (var task in tasks)
+                {
+                    await task;
                 }
             }
 
+            return true;
+        }
+
+        private async Task<bool> CloneAndFetchProject(GroupInfo.StoreInfo.Repository projectReference, string projectDir, string taskTag)
+        {
+            Console.WriteLine(taskTag + "Cloning " + projectReference.CloneUrl);
+            var cloningResult = await Utilities.Git.CloneProject(projectReference.CloneUrl, projectDir);
+            if (cloningResult.HasValue && !cloningResult.Value)
+            {
+                Console.WriteLine(taskTag + "Cannot Clone Project");
+                return false;
+            }
+            else if (!cloningResult.HasValue)
+            {
+                Console.WriteLine(taskTag + "Skipping Clone");
+                return true;
+            }
+            else
+            {
+                projectReference.CloneTimestamp = DateTime.Now;
+            }
+
+            Console.WriteLine(taskTag + "Fetching " + projectReference.CloneUrl);
+            if (!await Utilities.Git.FetchProject(projectDir))
+            {
+                projectReference.LastFetchTimestamp = DateTime.Now;
+                projectReference.LastFetchSuccessful = false;
+                Console.WriteLine(taskTag + "Cannot Fetch Project");
+                return false;
+            }
+            else
+            {
+                projectReference.LastFetchTimestamp = DateTime.Now;
+                projectReference.LastFetchSuccessful = true;
+                projectReference.LastSuccessfulFetch = DateTime.Now;
+            }
+            Console.WriteLine(taskTag + "Fetching LFS for " + projectReference.CloneUrl);
+            if (!await Utilities.Git.FetchProjectLFS(projectDir))
+            {
+                projectReference.LastFetchLFSTimestamp = DateTime.Now;
+                projectReference.LastFetchLFSSuccessful = false;
+                Console.WriteLine(taskTag + "Cannot Fetch LFS Project");
+                return false;
+            }
+            else
+            {
+                projectReference.LastFetchLFSTimestamp = DateTime.Now;
+                projectReference.LastFetchLFSSuccessful = true;
+                projectReference.LastSuccessfulFetchLFSTimestamp = DateTime.Now;
+            }
             return true;
         }
 
