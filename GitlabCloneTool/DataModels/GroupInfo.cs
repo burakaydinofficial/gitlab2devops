@@ -40,15 +40,15 @@ namespace GitlabCloneTool.DataModels
                 public string Name;
                 public Project RepositoryProject;
 
-                public DateTime CloneTimestamp = DateTime.MinValue;
+                public DateTime? CloneTimestamp = null;
 
-                public DateTime LastFetchTimestamp = DateTime.MinValue;
+                public DateTime? LastFetchTimestamp = null;
                 public bool LastFetchSuccessful;
-                public DateTime LastSuccessfulFetch = DateTime.MinValue;
+                public DateTime? LastSuccessfulFetch = null;
 
-                public DateTime LastFetchLFSTimestamp = DateTime.MinValue;
+                public DateTime? LastFetchLFSTimestamp = null;
                 public bool LastFetchLFSSuccessful;
-                public DateTime LastSuccessfulFetchLFSTimestamp = DateTime.MinValue;
+                public DateTime? LastSuccessfulFetchLFSTimestamp = null;
 
                 public Repository(Project repositoryProject)
                 {
