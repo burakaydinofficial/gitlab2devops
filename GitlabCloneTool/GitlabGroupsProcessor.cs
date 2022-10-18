@@ -88,21 +88,29 @@ namespace GitlabCloneTool
 
         private async Task<bool> GetGroupDetails()
         {
-            for (var i = 0; i < Groups.Length; i++)
+            try
             {
-                var group = Groups[i];
-                var groupUrl = string.Format(GITLAB_GROUP_URL_FORMAT, group.Input.RawGitlabInfo.id);
-                var response = await client.GetAsync(groupUrl);
-                var responseContent = await response.Content.ReadAsStringAsync();
-                var groupDetails = JsonConvert.DeserializeObject<GitlabGroupDetails>(responseContent);
-                group.Input.RawGitlabDetails = groupDetails;
-                foreach (var project in groupDetails.projects)
+                for (var i = 0; i < Groups.Length; i++)
                 {
-                    if (!group.Store.Repositories.Exists(x => x.Id == project.id))
+                    var group = Groups[i];
+                    var groupUrl = string.Format(GITLAB_GROUP_URL_FORMAT, group.Input.RawGitlabInfo.id);
+                    var response = await client.GetAsync(groupUrl);
+                    var responseContent = await response.Content.ReadAsStringAsync();
+                    var groupDetails = JsonConvert.DeserializeObject<GitlabGroupDetails>(responseContent);
+                    group.Input.RawGitlabDetails = groupDetails;
+                    foreach (var project in groupDetails.projects)
                     {
-                        group.Store.Repositories.Add(new GroupInfo.StoreInfo.Repository(project));
+                        if (!group.Store.Repositories.Exists(x => x.Id == project.id))
+                        {
+                            group.Store.Repositories.Add(new GroupInfo.StoreInfo.Repository(project));
+                        }
                     }
                 }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return false;
             }
 
             return true;
@@ -148,6 +156,8 @@ namespace GitlabCloneTool
                 var group = Groups[i];
                 string groupDir = Path.Combine(baseDir, group.Store.Root);
                 Console.WriteLine("Group " + group.Input.RawGitlabDetails.name);
+                var taskIndex = 0;
+                List<Task<bool>> tasks = new List<Task<bool>>();
                 foreach (var project in @group.Input.RawGitlabDetails.projects)
                 {
                     var projectReference = group.Store.Repositories.Find(x => x.Id == project.id);
