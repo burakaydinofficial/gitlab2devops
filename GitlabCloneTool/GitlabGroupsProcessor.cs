@@ -228,14 +228,24 @@ namespace GitlabCloneTool
         private void DownloadReport()
         {
             Console.WriteLine();
-            Console.WriteLine("Download Report");
+            Console.WriteLine("---------- Download Report ----------");
+            int projectCount = 0;
+            int successTotal = 0;
+            Console.WriteLine();
             for (var i = 0; i < Groups.Length; i++)
             {
                 var group = Groups[i];
                 Console.WriteLine(" - " + group.Input.RawGitlabDetails.full_name);
                 var groupProjects = group.Store.Repositories;
-                Console.WriteLine("   Project Count: " + groupProjects.Count + " Fetch Success: " + groupProjects.FindAll(x => x.LastFetchSuccessful && x.LastFetchLFSSuccessful).Count);
+                var successCount = groupProjects.FindAll(x => x.LastFetchSuccessful && x.LastFetchLFSSuccessful).Count;
+                successTotal += successCount;
+                projectCount += groupProjects.Count;
+                Console.WriteLine("   Project Count: " + groupProjects.Count + " Fetch Success: " + successCount);
+                Console.WriteLine();
             }
+            Console.WriteLine("------ Download Report Summary ------");
+            Console.WriteLine("Total Project Count: " + projectCount + " Success Count: " + successTotal);
+            Console.WriteLine();
         }
     }
 }
