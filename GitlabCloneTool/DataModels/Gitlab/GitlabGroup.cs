@@ -5,7 +5,7 @@ namespace GitlabCloneTool.DataModels.Gitlab
 {
     internal class GitlabGroup
     {
-        public int id { get; set; }
+        public int? id { get; set; }
         public string web_url { get; set; }
         public string name { get; set; }
         public string path { get; set; }
@@ -13,14 +13,14 @@ namespace GitlabCloneTool.DataModels.Gitlab
         public string visibility { get; set; }
         public bool share_with_group_lock { get; set; }
         public bool require_two_factor_authentication { get; set; }
-        public int two_factor_grace_period { get; set; }
+        public int? two_factor_grace_period { get; set; }
         public string project_creation_level { get; set; }
         public object auto_devops_enabled { get; set; }
         public string subgroup_creation_level { get; set; }
         public object emails_disabled { get; set; }
         public object mentions_disabled { get; set; }
         public bool lfs_enabled { get; set; }
-        public int default_branch_protection { get; set; }
+        public int? default_branch_protection { get; set; }
         public object avatar_url { get; set; }
         public bool request_access_enabled { get; set; }
         public string full_name { get; set; }
@@ -35,7 +35,7 @@ namespace GitlabCloneTool.DataModels.Gitlab
     {
         public string cadence { get; set; }
         public bool enabled { get; set; }
-        public int keep_n { get; set; }
+        public int? keep_n { get; set; }
         public string older_than { get; set; }
         public string name_regex { get; set; }
         public object name_regex_keep { get; set; }
@@ -44,7 +44,7 @@ namespace GitlabCloneTool.DataModels.Gitlab
 
     public class ForkedFromProject
     {
-        public int id { get; set; }
+        public int? id { get; set; }
         public string description { get; set; }
         public string name { get; set; }
         public string name_with_namespace { get; set; }
@@ -59,8 +59,8 @@ namespace GitlabCloneTool.DataModels.Gitlab
         public string web_url { get; set; }
         public object readme_url { get; set; }
         public object avatar_url { get; set; }
-        public int forks_count { get; set; }
-        public int star_count { get; set; }
+        public int? forks_count { get; set; }
+        public int? star_count { get; set; }
         public DateTime last_activity_at { get; set; }
         public Namespace @namespace { get; set; }
     }
@@ -79,19 +79,19 @@ namespace GitlabCloneTool.DataModels.Gitlab
 
     public class Namespace
     {
-        public int id { get; set; }
+        public int? id { get; set; }
         public string name { get; set; }
         public string path { get; set; }
         public string kind { get; set; }
         public string full_path { get; set; }
-        public int parent_id { get; set; }
+        public int? parent_id { get; set; }
         public object avatar_url { get; set; }
         public string web_url { get; set; }
     }
 
     public class Project
     {
-        public int id { get; set; }
+        public int? id { get; set; }
         public string description { get; set; }
         public string name { get; set; }
         public string name_with_namespace { get; set; }
@@ -106,8 +106,8 @@ namespace GitlabCloneTool.DataModels.Gitlab
         public string web_url { get; set; }
         public string readme_url { get; set; }
         public object avatar_url { get; set; }
-        public int forks_count { get; set; }
-        public int star_count { get; set; }
+        public int? forks_count { get; set; }
+        public int? star_count { get; set; }
         public DateTime last_activity_at { get; set; }
         public Namespace @namespace { get; set; }
         public string container_registry_image_prefix { get; set; }
@@ -143,21 +143,21 @@ namespace GitlabCloneTool.DataModels.Gitlab
         public object emails_disabled { get; set; }
         public bool shared_runners_enabled { get; set; }
         public bool lfs_enabled { get; set; }
-        public int creator_id { get; set; }
+        public int? creator_id { get; set; }
         public ForkedFromProject forked_from_project { get; set; }
         public bool mr_default_target_self { get; set; }
         public string import_url { get; set; }
         public string import_type { get; set; }
         public string import_status { get; set; }
-        public int open_issues_count { get; set; }
-        public int ci_default_git_depth { get; set; }
+        public int? open_issues_count { get; set; }
+        public int? ci_default_git_depth { get; set; }
         public bool ci_forward_deployment_enabled { get; set; }
         public bool ci_job_token_scope_enabled { get; set; }
         public bool ci_separated_caches { get; set; }
         public bool ci_opt_in_jwt { get; set; }
         public bool ci_allow_fork_pipelines_to_run_in_parent_project { get; set; }
         public bool public_jobs { get; set; }
-        public int build_timeout { get; set; }
+        public int? build_timeout { get; set; }
         public string auto_cancel_pending_pipelines { get; set; }
         public string ci_config_path { get; set; }
         public List<object> shared_with_groups { get; set; }
@@ -188,7 +188,7 @@ namespace GitlabCloneTool.DataModels.Gitlab
 
     public class GitlabGroupDetails
     {
-        public int id { get; set; }
+        public int? id { get; set; }
         public string web_url { get; set; }
         public string name { get; set; }
         public string path { get; set; }
@@ -196,20 +196,20 @@ namespace GitlabCloneTool.DataModels.Gitlab
         public string visibility { get; set; }
         public bool share_with_group_lock { get; set; }
         public bool require_two_factor_authentication { get; set; }
-        public int two_factor_grace_period { get; set; }
+        public int? two_factor_grace_period { get; set; }
         public string project_creation_level { get; set; }
         public object auto_devops_enabled { get; set; }
         public string subgroup_creation_level { get; set; }
         public object emails_disabled { get; set; }
         public object mentions_disabled { get; set; }
         public bool lfs_enabled { get; set; }
-        public int default_branch_protection { get; set; }
+        public int? default_branch_protection { get; set; }
         public object avatar_url { get; set; }
         public bool request_access_enabled { get; set; }
         public string full_name { get; set; }
         public string full_path { get; set; }
         public DateTime created_at { get; set; }
-        public int parent_id { get; set; }
+        public int? parent_id { get; set; }
         public object ldap_cn { get; set; }
         public object ldap_access { get; set; }
         public List<object> shared_with_groups { get; set; }
