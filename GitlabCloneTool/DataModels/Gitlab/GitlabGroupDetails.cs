@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace GitlabCloneTool.DataModels.Gitlab
 {
-    internal class GitlabGroup
+    public class GitlabGroupDetails
     {
         public int? id { get; set; }
         public string web_url { get; set; }
@@ -28,6 +29,13 @@ namespace GitlabCloneTool.DataModels.Gitlab
         public int? parent_id { get; set; }
         public object ldap_cn { get; set; }
         public object ldap_access { get; set; }
+        public List<object> shared_with_groups { get; set; }
+        public string runners_token { get; set; }
+        public List<Project> projects { get; set; }
+        public List<object> shared_projects { get; set; }
+        public object shared_runners_minutes_limit { get; set; }
+        public object extra_shared_runners_minutes_limit { get; set; }
+        public object prevent_forking_outside_group { get; set; }
+        public bool? membership_lock { get; set; }
     }
-    // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
 }
