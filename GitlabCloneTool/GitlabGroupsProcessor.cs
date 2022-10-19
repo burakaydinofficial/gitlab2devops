@@ -160,17 +160,17 @@ namespace GitlabCloneTool
                 List<Task<bool>> tasks = new List<Task<bool>>();
                 foreach (var project in @group.Input.RawGitlabDetails.projects)
                 {
+                    var taskTag = "Task: " + taskIndex + " ||| ";
                     var projectReference = group.Store.Repositories.Find(x => x.Id == project.id);
-                    Console.WriteLine("Project " + projectReference.Name);
+                    Console.WriteLine(taskTag + "Project " + projectReference.Name);
 
                     if (!projectReference.Clone)
                     {
-                        Console.WriteLine("Skipping Project. Clone Disabled in group json file");
+                        Console.WriteLine(taskTag + "Skipping Project. Clone Disabled in group json file");
                         continue;
                     }
 
                     var projectDir = Path.Combine(groupDir, projectReference.LocalPath);
-                    var taskTag = "Task: " + taskIndex + " ||| ";
                     var task = CloneAndFetchProject(projectReference, projectDir, taskTag);
                     tasks.Add(task);
                     taskIndex++;
@@ -242,12 +242,14 @@ namespace GitlabCloneTool
             int projectCount = 0;
             int successTotal = 0;
             Console.WriteLine();
+            List<GroupInfo.StoreInfo.Repository> failedRepositories = new List<GroupInfo.StoreInfo.Repository>();
             for (var i = 0; i < Groups.Length; i++)
             {
                 var group = Groups[i];
                 Console.WriteLine(" - " + group.Input.RawGitlabDetails.full_name);
                 var groupProjects = group.Store.Repositories;
                 var successCount = groupProjects.FindAll(x => x.LastFetchSuccessful && x.LastFetchLFSSuccessful).Count;
+                failedRepositories.AddRange(groupProjects.FindAll(x => !x.LastFetchSuccessful || !x.LastFetchLFSSuccessful));
                 successTotal += successCount;
                 projectCount += groupProjects.Count;
                 Console.WriteLine("   Project Count: " + groupProjects.Count + " Fetch Success: " + successCount);
@@ -255,6 +257,13 @@ namespace GitlabCloneTool
             }
             Console.WriteLine("------ Download Report Summary ------");
             Console.WriteLine("Total Project Count: " + projectCount + " Success Count: " + successTotal);
+            Console.WriteLine();
+            Console.WriteLine("Failed Projects: ");
+            foreach (var failedRepository in failedRepositories)
+            {
+                Console.WriteLine(failedRepository.Name + "\t" + failedRepository.RepositoryProject.path);
+            }
+            Console.WriteLine("-------------------------------------");
             Console.WriteLine();
         }
     }
