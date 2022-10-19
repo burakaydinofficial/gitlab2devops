@@ -196,7 +196,6 @@ namespace GitlabCloneTool
             else if (!cloningResult.HasValue)
             {
                 Console.WriteLine(taskTag + "Skipping Clone");
-                return true;
             }
             else
             {
