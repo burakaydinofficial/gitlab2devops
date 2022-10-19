@@ -5,15 +5,15 @@ namespace GitlabCloneTool
 {
     internal class MainConfig
     {
-        public string PrivateToken = " ";
         public string CloneDirectory = " ";
+        public string GitlabPrivateToken = " ";
 
         public static MainConfig Parse(string json)
         {
             try
             {
                 var config = JsonConvert.DeserializeObject<MainConfig>(json);
-                if (config == null || string.IsNullOrWhiteSpace(config.PrivateToken) ||
+                if (config == null || string.IsNullOrWhiteSpace(config.GitlabPrivateToken) ||
                     string.IsNullOrWhiteSpace(config.CloneDirectory))
                     return null;
                 return config;

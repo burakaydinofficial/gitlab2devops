@@ -49,6 +49,7 @@
     <Compile Include="DataModels\Gitlab\GitlabGroup.cs" />
     <Compile Include="GitlabGroupsProcessor.cs" />
     <Compile Include="DataModels\GroupInfo.cs" />
+    <Compile Include="GroupsProcessorBase.cs" />
     <Compile Include="MainConfig.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

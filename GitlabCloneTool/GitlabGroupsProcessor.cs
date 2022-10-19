@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using GitlabCloneTool.DataModels;
@@ -11,28 +10,21 @@ using Newtonsoft.Json;
 
 namespace GitlabCloneTool
 {
-    internal class GitlabGroupsProcessor
+    internal class GitlabGroupsProcessor : GroupsProcessorBase
     {
         private const string GITLAB_GROUPS_URL = "https://gitlab.com/api/v4/groups?per_page=500";
         private const string GITLAB_GROUP_URL_FORMAT = "https://gitlab.com/api/v4/groups/{0}";
-        private const string FILE_GROUPS_RAW = "groups_raw.json";
-        private const string FILE_GROUPS = "groups.json";
-        private const string DIRECTORY_GROUPS = "Groups";
-        private readonly MainConfig config;
-        private readonly HttpClient client;
 
         public string GroupsJson;
-        public GroupInfo[] Groups;
 
-        public GitlabGroupsProcessor(MainConfig config)
+        public GitlabGroupsProcessor(MainConfig config) : base(config)
         {
-            this.config = config;
-            client = new HttpClient();
-            client.DefaultRequestHeaders.Add("PRIVATE-TOKEN", config.PrivateToken);
+            client.DefaultRequestHeaders.Add("PRIVATE-TOKEN", config.GitlabPrivateToken);
         }
 
         public async Task CreateAndProcessGroups()
         {
+            ReadGroupsInfo();
             Console.WriteLine("Getting Group List");
             var response = await client.GetAsync(GITLAB_GROUPS_URL);
             GroupsJson = await response.Content.ReadAsStringAsync();
@@ -40,7 +32,7 @@ namespace GitlabCloneTool
             var rawGroups = JsonConvert.DeserializeObject<GitlabGroup[]>(GroupsJson);
             Utilities.WriteAllText(config.CloneDirectory, FILE_GROUPS_RAW, GroupsJson);
             Console.WriteLine("Processing Group List");
-            CreateGroupsInfo(rawGroups);
+            CreateOrUpdateGroupsInfo(rawGroups);
             WriteGroupsInfo();
             Console.WriteLine("Getting Group Details and Project Lists");
             await GetGroupDetails();
@@ -60,37 +52,30 @@ namespace GitlabCloneTool
             DownloadReport();
         }
 
-        private bool CreateGroupsInfo(GitlabGroup[] groups)
+        private bool CreateOrUpdateGroupsInfo(GitlabGroup[] groups)
         {
-            Groups = new GroupInfo[groups.Length];
+            if (Groups == null)
+                Groups = new List<GroupInfo>();
             for (var i = 0; i < groups.Length; i++)
             {
-                var go = new GroupInfo();
+                var go = Groups.Find(x => x.Input.RawGitlabInfo.id == groups[i].id);
+                if (go == null)
+                {
+                    go = new GroupInfo();
+                    Groups.Add(go);
+                }
                 go.Input = new GroupInfo.InputInfo(groups[i]);
-                go.Store = new GroupInfo.StoreInfo(go.Input.RawGitlabInfo.full_path);
-                Groups[i] = go;
+                if (go.Store == null)
+                    go.Store = new GroupInfo.StoreInfo(go.Input.RawGitlabInfo.full_path);
             }
             return true;
-        }
-
-        private bool ReadGroupsInfo()
-        {
-            Groups = JsonConvert.DeserializeObject<GroupInfo[]>(
-                File.ReadAllText(Path.Combine(config.CloneDirectory, FILE_GROUPS)));
-            return true;
-        }
-
-        private bool WriteGroupsInfo()
-        {
-            return Utilities.WriteAllText(config.CloneDirectory, FILE_GROUPS,
-                JsonConvert.SerializeObject(Groups, Formatting.Indented));
         }
 
         private async Task<bool> GetGroupDetails()
         {
             try
             {
-                for (var i = 0; i < Groups.Length; i++)
+                for (var i = 0; i < Groups.Count; i++)
                 {
                     var group = Groups[i];
                     var groupUrl = string.Format(GITLAB_GROUP_URL_FORMAT, group.Input.RawGitlabInfo.id);
@@ -119,7 +104,7 @@ namespace GitlabCloneTool
         private bool CreateGroupFolders()
         {
             string baseDir = Path.Combine(config.CloneDirectory, DIRECTORY_GROUPS);
-            for (var i = 0; i < Groups.Length; i++)
+            for (var i = 0; i < Groups.Count; i++)
             {
                 var group = Groups[i];
                 string groupDir = Path.Combine(baseDir, group.Store.Root);
@@ -133,7 +118,7 @@ namespace GitlabCloneTool
         private bool CreateProjectFolders()
         {
             string baseDir = Path.Combine(config.CloneDirectory, DIRECTORY_GROUPS);
-            for (var i = 0; i < Groups.Length; i++)
+            for (var i = 0; i < Groups.Count; i++)
             {
                 var group = Groups[i];
                 string groupDir = Path.Combine(baseDir, group.Store.Root);
@@ -151,7 +136,7 @@ namespace GitlabCloneTool
         private async Task<bool> CloneAllProjects()
         {
             string baseDir = Path.Combine(config.CloneDirectory, DIRECTORY_GROUPS);
-            for (var i = 0; i < Groups.Length; i++)
+            for (var i = 0; i < Groups.Count; i++)
             {
                 var group = Groups[i];
                 string groupDir = Path.Combine(baseDir, group.Store.Root);
@@ -242,7 +227,7 @@ namespace GitlabCloneTool
             int successTotal = 0;
             Console.WriteLine();
             List<GroupInfo.StoreInfo.Repository> failedRepositories = new List<GroupInfo.StoreInfo.Repository>();
-            for (var i = 0; i < Groups.Length; i++)
+            for (var i = 0; i < Groups.Count; i++)
             {
                 var group = Groups[i];
                 Console.WriteLine(" - " + group.Input.RawGitlabDetails.full_name);
