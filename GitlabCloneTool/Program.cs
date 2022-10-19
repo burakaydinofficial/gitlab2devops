@@ -51,6 +51,12 @@ namespace GitlabCloneTool
                         await groupProcessor.CloneProjects();
                         break;
                     }
+                case 3:
+                    {
+                        var groupProcessor = new AzureGroupsProcessor(config);
+                        await groupProcessor.GetTeams();
+                        break;
+                    }
 
             }
 
@@ -79,6 +85,7 @@ namespace GitlabCloneTool
                     }
 
                     var config = MainConfig.Parse(json);
+                    File.WriteAllText(CONFIG_PATH, config.Serialize());
                     return config;
                 }
                 else

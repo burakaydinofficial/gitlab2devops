@@ -46,6 +46,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AzureGroupsProcessor.cs" />
+    <Compile Include="DataModels\Azure\AzureTeam.cs" />
     <Compile Include="DataModels\Gitlab\GitlabGroup.cs" />
     <Compile Include="GitlabGroupsProcessor.cs" />
     <Compile Include="DataModels\GroupInfo.cs" />

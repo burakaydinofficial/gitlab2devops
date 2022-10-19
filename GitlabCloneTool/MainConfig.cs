@@ -7,6 +7,9 @@ namespace GitlabCloneTool
     {
         public string CloneDirectory = " ";
         public string GitlabPrivateToken = " ";
+        public string AzureUserName = " ";
+        public string AzureAccessToken = " ";
+        public string AzureOrganization = " ";
 
         public static MainConfig Parse(string json)
         {
@@ -25,9 +28,14 @@ namespace GitlabCloneTool
             }
         }
 
+        public bool IsAzureConfigured()
+        {
+            return !string.IsNullOrWhiteSpace(AzureAccessToken) && !string.IsNullOrWhiteSpace(AzureUserName) && !string.IsNullOrWhiteSpace(AzureOrganization);
+        }
+
         public string Serialize()
         {
-            return JsonConvert.SerializeObject(this);
+            return JsonConvert.SerializeObject(this, Formatting.Indented);
         }
     }
 }
