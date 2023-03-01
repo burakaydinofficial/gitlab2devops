@@ -54,7 +54,7 @@ namespace GitlabCloneTool
                 case 3:
                     {
                         var groupProcessor = new AzureGroupsProcessor(config);
-                        await groupProcessor.GetTeams();
+                        await groupProcessor.GetProjects();
                         break;
                     }
 
@@ -66,7 +66,13 @@ namespace GitlabCloneTool
 
         private static bool ReadUserSelection(out int mode)
         {
-            Console.WriteLine("Do All: 0\nDownload Group List: 1\nClone Projects: 2\nCreate Projects On Azure: 3\nCreate Repositories On Azure\nUpload Projects: 4");
+            Console.WriteLine("" +
+                              "Do All: 0\n" +
+                              "Download Group List: 1\n" +
+                              "Clone Projects: 2\n" +
+                              "Create Projects On Azure: 3\n" +
+                              "Create Repositories On Azure: 4\n" +
+                              "Upload Projects: 5");
             var input = Console.ReadLine();
             return Int32.TryParse(input, out mode);
         }

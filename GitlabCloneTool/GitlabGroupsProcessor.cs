@@ -55,7 +55,7 @@ namespace GitlabCloneTool
         private bool CreateOrUpdateGroupsInfo(GitlabGroup[] groups)
         {
             if (Groups == null)
-                Groups = new List<GroupInfo>();
+                Data.Groups = new List<GroupInfo>();
             for (var i = 0; i < groups.Length; i++)
             {
                 var go = Groups.Find(x => x.Input.RawGitlabInfo.id == groups[i].id);

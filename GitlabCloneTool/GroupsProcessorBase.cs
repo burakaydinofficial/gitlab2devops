@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using GitlabCloneTool.DataModels;
@@ -13,7 +14,8 @@ namespace GitlabCloneTool
         protected const string DIRECTORY_GROUPS = "Groups";
         protected readonly MainConfig config;
         protected readonly HttpClient client;
-        public List<GroupInfo> Groups;
+        public GroupInfoList Data;
+        public List<GroupInfo> Groups => Data.Groups;
 
         public GroupsProcessorBase(MainConfig config)
         {
@@ -25,14 +27,17 @@ namespace GitlabCloneTool
         {
             var path = Path.Combine(config.CloneDirectory, FILE_GROUPS);
             if (File.Exists(path))
-                Groups = JsonConvert.DeserializeObject<List<GroupInfo>>(File.ReadAllText(path));
+            {
+                var json = File.ReadAllText(path);
+                Data = JsonConvert.DeserializeObject<GroupInfoList>(json);
+            }
             return true;
         }
 
         protected bool WriteGroupsInfo()
         {
             return Utilities.WriteAllText(config.CloneDirectory, FILE_GROUPS,
-                JsonConvert.SerializeObject(Groups, Formatting.Indented));
+                JsonConvert.SerializeObject(Data, Formatting.Indented));
         }
     }
 }

@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="AzureGroupsProcessor.cs" />
     <Compile Include="DataModels\Azure\AzureTeam.cs" />
+    <Compile Include="DataModels\Common.cs" />
     <Compile Include="DataModels\Gitlab\ContainerExpirationPolicy.cs" />
     <Compile Include="DataModels\Gitlab\ForkedFromProject.cs" />
     <Compile Include="DataModels\Gitlab\GitlabGroup.cs" />

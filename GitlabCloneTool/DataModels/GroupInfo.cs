@@ -1,14 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
+using GitlabCloneTool.DataModels.Azure;
 using GitlabCloneTool.DataModels.Gitlab;
 
 namespace GitlabCloneTool.DataModels
 {
+    internal class GroupInfoList
+    {
+        public List<GroupInfo> Groups;
+        public AzureTeamList RawAzureTeamList;
+        public AzureProjectList RawAzureProjectList;
+    }
+
     internal class GroupInfo
     {
         public InputInfo Input;
         public StoreInfo Store;
-        public OutputInfo Output;
+        public OutputInfo Output = new OutputInfo();
 
         public class InputInfo
         {
@@ -64,7 +72,22 @@ namespace GitlabCloneTool.DataModels
 
         public class OutputInfo
         {
+            public List<Match> Matches = new List<Match>();
+            public class Match
+            {
+                public int FromId;
+                public string ToId;
+            }
 
+            public Dictionary<int, string> CreateDictionary()
+            {
+                var dict = new Dictionary<int, string>();
+                foreach (var match in Matches)
+                {
+                    dict[match.FromId] = match.ToId;
+                }
+                return dict;
+            }
         }
     }
 }
