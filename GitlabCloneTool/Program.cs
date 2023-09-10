@@ -23,45 +23,58 @@ namespace GitlabCloneTool
             }
 
             int mode;
+            do
+            {
+               mode = await ReadUserSelectionAndExecute(config);
+            } while (mode != 6);
+        }
+
+        private static async Task<int> ReadUserSelectionAndExecute(MainConfig config)
+        {
+            int mode;
             if (!ReadUserSelection(out mode))
             {
                 Console.WriteLine("Invalid Selection");
                 Console.ReadLine();
-                return;
+                return mode;
             }
+
+            Console.WriteLine();
 
             switch (mode)
             {
                 case 0:
-                    {
-                        var groupProcessor = new GitlabGroupsProcessor(config);
-                        await groupProcessor.CreateAndProcessGroups();
-                        await groupProcessor.CloneProjects();
-                        break;
-                    }
+                {
+                    var groupProcessor = new GitlabGroupsProcessor(config);
+                    await groupProcessor.CreateAndProcessGroups();
+                    await groupProcessor.CloneProjects();
+                    break;
+                }
                 case 1:
-                    {
-                        var groupProcessor = new GitlabGroupsProcessor(config);
-                        await groupProcessor.CreateAndProcessGroups();
-                        break;
-                    }
+                {
+                    var groupProcessor = new GitlabGroupsProcessor(config);
+                    await groupProcessor.CreateAndProcessGroups();
+                    break;
+                }
                 case 2:
-                    {
-                        var groupProcessor = new GitlabGroupsProcessor(config);
-                        await groupProcessor.CloneProjects();
-                        break;
-                    }
+                {
+                    var groupProcessor = new GitlabGroupsProcessor(config);
+                    await groupProcessor.CloneProjects();
+                    break;
+                }
                 case 3:
-                    {
-                        var groupProcessor = new AzureGroupsProcessor(config);
-                        await groupProcessor.GetProjects();
-                        break;
-                    }
-
+                {
+                    var groupProcessor = new AzureGroupsProcessor(config);
+                    await groupProcessor.GetProjects();
+                    break;
+                }
+                default:
+                    Console.WriteLine("Finished, Pressed Enter to Exit");
+                    Console.ReadLine();
+                    break;
             }
 
-            Console.WriteLine("Finished, Pressed Enter to Exit");
-            Console.ReadLine();
+            return mode;
         }
 
         private static bool ReadUserSelection(out int mode)
@@ -72,7 +85,8 @@ namespace GitlabCloneTool
                               "Clone Projects: 2\n" +
                               "Create Projects On Azure: 3\n" +
                               "Create Repositories On Azure: 4\n" +
-                              "Upload Projects: 5");
+                              "Upload Projects: 5\n" + 
+                              "Exit: 6");
             var input = Console.ReadLine();
             return Int32.TryParse(input, out mode);
         }

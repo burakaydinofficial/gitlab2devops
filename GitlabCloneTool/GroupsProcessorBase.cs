@@ -29,7 +29,16 @@ namespace GitlabCloneTool
             if (File.Exists(path))
             {
                 var json = File.ReadAllText(path);
-                Data = JsonConvert.DeserializeObject<GroupInfoList>(json);
+                try
+                {
+                    Data = JsonConvert.DeserializeObject<GroupInfoList>(json);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Unable to deserialize GroupInfoList\n" + json);
+                    Data = new GroupInfoList();
+                    return false;
+                }
             }
             return true;
         }

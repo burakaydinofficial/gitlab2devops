@@ -125,7 +125,7 @@ namespace GitlabCloneTool
                             continue;
 
                         var proj = new AzureCreateProject();
-                        proj.description = repository.LocalPath
+                        proj.description = repository.LocalPath;
                     }
                 }
             }

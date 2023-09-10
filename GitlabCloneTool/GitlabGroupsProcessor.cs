@@ -12,14 +12,17 @@ namespace GitlabCloneTool
 {
     internal class GitlabGroupsProcessor : GroupsProcessorBase
     {
-        private const string GITLAB_GROUPS_URL = "https://gitlab.com/api/v4/groups?per_page=500";
-        private const string GITLAB_GROUP_URL_FORMAT = "https://gitlab.com/api/v4/groups/{0}";
+        //private const string GITLAB_GROUPS_URL = "https://gitlab.com/api/v4/groups?per_page=500";
+        //private const string GITLAB_GROUP_URL_FORMAT = "https://gitlab.com/api/v4/groups/{0}";
+        private const string GITLAB_GROUPS_URL = "http://192.168.31.163/api/v4/groups?per_page=500";
+        private const string GITLAB_GROUP_URL_FORMAT = "http://192.168.31.163/api/v4/groups/{0}";
 
         public string GroupsJson;
 
         public GitlabGroupsProcessor(MainConfig config) : base(config)
         {
             client.DefaultRequestHeaders.Add("PRIVATE-TOKEN", config.GitlabPrivateToken);
+            //client.DefaultRequestHeaders.Add("Authorization", "Bearer " + config.GitlabPrivateToken);
         }
 
         public async Task CreateAndProcessGroups()
@@ -54,6 +57,8 @@ namespace GitlabCloneTool
 
         private bool CreateOrUpdateGroupsInfo(GitlabGroup[] groups)
         {
+            if (Data == null)
+                Data = new GroupInfoList();
             if (Groups == null)
                 Data.Groups = new List<GroupInfo>();
             for (var i = 0; i < groups.Length; i++)
